@@ -24,31 +24,41 @@ class AuthService {
     }
   }
 
-  // --- SIGN UP METHOD (EXISTING) ---
+// lib/auth_service.dart
   Future<String?> signUpUser({
     required String email,
     required String password,
     required String username,
   }) async {
     try {
-      final AuthResponse res = await _supabase.auth.signUp(
+      // 1. Attempt to Sign Up
+      final response = await _supabase.auth.signUp(
         email: email,
         password: password,
+        data: {'username': username},
       );
 
-      final User? user = res.user;
+      final user = response.user;
+      if (user == null) return "Sign up failed. Please check your connection.";
 
-      if (user != null) {
-        await _supabase.from('profiles').insert({
-          'id': user.id,
-          'username': username,
-          'total_xp': 0,
-        });
-        return null;
-      }
-      return "User creation failed.";
+      // 2. Insert into Profiles table only if successful
+      // Use upsert() instead of insert() to prevent the "duplicate key" error
+      await _supabase.from('profiles').upsert({
+        'id': user.id,
+        'username': username,
+        'total_xp': 0,
+        'completed_quests': [],
+      });
+
+      return null; // Success
     } on AuthException catch (e) {
       return e.message;
+    } on PostgrestException catch (e) {
+      // This catches the specific error shown in your screenshot
+      if (e.code == '23505') {
+        return "This account already exists. Please try logging in.";
+      }
+      return "Database Error: ${e.message}";
     } catch (e) {
       return "An unexpected error occurred: $e";
     }

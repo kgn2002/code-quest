@@ -1,9 +1,9 @@
+import 'package:codequest/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_service.dart';
 import 'api_service.dart';
 import 'game_view.dart';
-import 'main.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -22,17 +22,19 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isLoading = false;
 
   void _signUp() async {
-    // Check if essential fields are empty before proceeding
-    if (_emailController.text.isEmpty || _usernameController.text.isEmpty) {
+    // Validation: Ensure all fields are filled
+    if (_emailController.text.isEmpty ||
+        _usernameController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Email and Username are required!"))
+          const SnackBar(content: Text("All fields are required!"))
       );
       return;
     }
 
     setState(() => _isLoading = true);
 
-
+    // 1. Perform Auth via Supabase
     final error = await _authService.signUpUser(
       email: _emailController.text.trim().toLowerCase(),
       password: _passwordController.text,
@@ -43,27 +45,37 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = Supabase.instance.client.auth.currentUser;
 
       if (user != null) {
-        // Send initial metrics to your FastAPI Application Tier
-        await _apiService.sendMetrics(user.id, 0, 0.0);
+        // --- FIXED CALL FOR SPRINT 4 & 5 ---
+        // We use named parameters and add 'locationId' for your Metrics Study
+        await _apiService.sendLearningMetrics(
+          profileId: user.id,
+          locationId: 'Registration', // Default location for first-time setup
+          errors: 0,
+          latency: 0.0,
+        );
 
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Account Created! Entering Code-Quest..."))
+        // 3. NAVIGATION: Clear stack to prevent back-button login glitch
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const GameView()),
+              (Route<dynamic> route) => false,
         );
 
-        // Move to the RPG world (Sprint 2)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  GameView()),
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Welcome to Code-Quest!"),
+                backgroundColor: Colors.green
+            )
         );
       }
     } else {
+      setState(() => _isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $error")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $error"), backgroundColor: Colors.red)
+      );
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -76,24 +88,43 @@ class _SignupScreenState extends State<SignupScreen> {
           children: [
             TextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: "Username")
+                decoration: const InputDecoration(
+                  labelText: "Username",
+                  border: OutlineInputBorder(),
+                )
             ),
+            const SizedBox(height: 15),
             TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: "Email")
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                )
             ),
+            const SizedBox(height: 15),
             TextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: "Password"),
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
                 obscureText: true
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             _isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
+                : SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
                 onPressed: _signUp,
-                child: const Text("Join Quest")
+                child: const Text("Join Quest", style: TextStyle(fontSize: 18)),
+              ),
             ),
+            TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginScreen())),
+              child: const Text("Already have an account? Login"),
+            )
           ],
         ),
       ),
