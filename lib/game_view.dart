@@ -237,29 +237,231 @@ Pyt
     },
   };
 
-  final Map<String, List<String>> teacherHints = {
-    // Map 1
-    'PythonHouse':   ["Use quotes around the text!", "Make sure print is lowercase", "Try: print('Hello World')"],
-    'PythonTable':   ["You only need numbers", "Use + for addition or * for multiply", "Try: print(5 + 5)"],
-    'PythonLibrary': ["First define x and y on separate lines", "Subtract with the - operator", "Try: x=20; y=5; print(x-y)"],
-    'PythonGarden':  ["Remember list indexes start at 0", "Use square brackets to access items", "Try: colors=['red','blue']; print(colors[0])"],
-    'PythonCave':    ["A for loop needs a colon at the end", "Indent the print statement with 4 spaces", "Try: for i in range(3): print(i)"],
-    // Map 2
-    'TreasureBox': [
-      "Define the function with the def keyword",
-      "Functions can return values using return",
-      "Call the function with arguments after defining it: add(3,4)",
-      // Final task hints (index 3,4,5 — used when isFinalTask=true)
-      "Start with: import re — then use re.findall(r'\\d+', text) to find numbers",
-      "Slicing: words[0][:3] gives the first 3 characters of the first word",
-      "Pattern loop: for i in range(1,4): print('*' * i)",
-    ],
-    'GoblinHouse':   ["Strings have built-in methods", "Try .upper() after the variable", "Try: s='hello'; print(s.upper())"],
-    'SnowToy':       ["Dictionaries use curly braces {}", "Access values using square brackets []", "Try: d={'a':1}; print(d['a'])"],
-    'Computer':      ["Use > or < for comparisons", "The and keyword combines two conditions", "Try: print(5 > 3)"],
-    'Coins':         ["type() tells you the data type", "int() converts a string to a number", "Try: print(type(42))"],
-    'PondBuilding':  ["while needs a condition to check each loop", "Remember to increment i inside the loop", "Try:\ni=0\nwhile i<3:\n    print(i)\n    i+=1"],
+  // ── PER-DIFFICULTY HINTS ─────────────────────────────────────────────────
+  // Structure: questId → difficulty → [hint1, hint2, hint3]
+  // Hints are specific to each difficulty — basic tasks get basic hints,
+  // intermediate tasks get intermediate hints, advanced gets advanced hints.
+  final Map<String, Map<String, List<String>>> teacherHints = {
+
+    // ── MAP 1 ──────────────────────────────────────────────────────────────
+    'PythonHouse': {
+      'basic': [
+        "Use the print() function with your text inside brackets.",
+        "Wrap the text in quotes — single or double both work.",
+        "Try: print('Hello World')",
+      ],
+      'intermediate': [
+        "Create a variable using = to store a value.",
+        "Assign 'Hello' to a variable called x, then print it.",
+        "Try: x = 'Hello'   then   print(x)",
+      ],
+      'advanced': [
+        "In Python the * operator on a string repeats it.",
+        "'Hello' * 3 produces HelloHelloHello with no spaces.",
+        "Try: print('Hello' * 3)",
+      ],
+    },
+
+    'PythonTable': {
+      'basic': [
+        "Use the + operator to add two numbers inside print().",
+        "Python calculates the math first, then prints the result.",
+        "Try: print(5 + 5)",
+      ],
+      'intermediate': [
+        "Use * for multiplication — 12 * 12 gives 144.",
+        "Place the multiplication directly inside print().",
+        "Try: print(12 * 12)",
+      ],
+      'advanced': [
+        "Python uses ** for exponentiation (raising to a power).",
+        "2 ** 3 means 2 to the power of 3 = 8.",
+        "Try: print(2 ** 3)",
+      ],
+    },
+
+    'PythonLibrary': {
+      'basic': [
+        "Define x and y on separate lines before printing.",
+        "Use - to subtract y from x inside print().",
+        "Try: x = 20   y = 5   print(x - y)",
+      ],
+      'intermediate': [
+        "% (modulo) gives the remainder — 10 % 2 == 0 means even.",
+        "Use a one-line if/else: print('Even' if condition else 'Odd')",
+        "Try: print('Even' if 10 % 2 == 0 else 'Odd')",
+      ],
+      'advanced': [
+        "Python can swap two variables in one line using simultaneous assignment.",
+        "x, y = y, x swaps both values instantly.",
+        "Try: x, y = 5, 10   then   x, y = y, x   then   print(x)",
+      ],
+    },
+
+    'PythonGarden': {
+      'basic': [
+        "Create a list with square brackets: ['red', 'blue']",
+        "List indexes start at 0 — so colors[0] is the first item.",
+        "Try: colors = ['red', 'blue']   print(colors[0])",
+      ],
+      'intermediate': [
+        "len() counts the number of items in a list.",
+        "Pass the list directly into len() — no loop needed.",
+        "Try: a = [1, 2, 3]   print(len(a))",
+      ],
+      'advanced': [
+        ".append() adds one item to the end of a list.",
+        "After appending, print the full list — it shows with brackets.",
+        "Try: a = [1, 2]   a.append(3)   print(a)",
+      ],
+    },
+
+    'PythonCave': {
+      'basic': [
+        "A for loop line ends with a colon :  then indent the body.",
+        "range(3) generates 0, 1, 2 — use it in your for loop.",
+        "Try:\nfor i in range(3):\n    print(i)",
+      ],
+      'intermediate': [
+        "range(start, stop) starts at 'start' and stops before 'stop'.",
+        "range(1, 4) gives 1, 2, 3 — the number 4 is not included.",
+        "Try:\nfor i in range(1, 4):\n    print(i)",
+      ],
+      'advanced': [
+        "A list comprehension builds a list in one line: [expr for var in iterable]",
+        "Wrap the comprehension in print() to display the resulting list.",
+        "Try: print([i for i in range(3)])",
+      ],
+    },
+
+    // ── MAP 2 ──────────────────────────────────────────────────────────────
+    'TreasureBox': {
+      'basic': [
+        "Define a function with def, a name, and () — end the line with :",
+        "Call the function by writing its name followed by () after the definition.",
+        "Try:\ndef greet():\n    print('Hi')\ngreet()",
+      ],
+      'intermediate': [
+        "Parameters go inside the () in the function definition.",
+        "Use return to send back a computed value, then print the call result.",
+        "Try:\ndef add(a, b):\n    return a + b\nprint(add(3, 4))",
+      ],
+      'advanced': [
+        "The function takes one number n and should return n multiplied by itself.",
+        "Use n * n or n ** 2 inside the function as the return value.",
+        "Try:\ndef square(n):\n    return n * n\nprint(square(5))",
+      ],
+      'final': [
+        "Import re at the top. Inside analyse(), split text and slice words[0][:3].",
+        "re.findall(r'\\d+', text) finds all numbers as strings in the text.",
+        "Pattern: for i in range(1, 4): print('*' * i)  — run this after the function.",
+      ],
+    },
+
+    'GoblinHouse': {
+      'basic': [
+        "Strings have built-in methods — access them with a dot after the variable.",
+        ".upper() converts every letter to uppercase.",
+        "Try: s = 'hello'   print(s.upper())",
+      ],
+      'intermediate': [
+        "len() works on strings too — it counts every character including spaces.",
+        "'hello world' has 11 characters: 5 + 1 space + 5.",
+        "Try: s = 'hello world'   print(len(s))",
+      ],
+      'advanced': [
+        "Python slicing with [::-1] reverses any sequence.",
+        "The three parts of a slice are [start:stop:step] — a step of -1 goes backwards.",
+        "Try: s = 'hello'   print(s[::-1])",
+      ],
+    },
+
+    'SnowToy': {
+      'basic': [
+        "A dictionary uses curly braces with key: value pairs.",
+        "Access a value with d['key'] — use the exact key name.",
+        "Try: d = {'a': 1}   print(d['a'])",
+      ],
+      'intermediate': [
+        "You can do arithmetic with dictionary values directly.",
+        "Add d['x'] + d['y'] inside print() to get the sum.",
+        "Try: d = {'x': 5, 'y': 3}   print(d['x'] + d['y'])",
+      ],
+      'advanced': [
+        "Start with an empty dict d = {} then add keys using d['key'] = value.",
+        "After adding the key 'k' with value 10, print it with d['k'].",
+        "Try: d = {}   d['k'] = 10   print(d['k'])",
+      ],
+    },
+
+    'Computer': {
+      'basic': [
+        "Use > to compare two numbers — Python prints True or False automatically.",
+        "Place the comparison directly inside print() — no if statement needed.",
+        "Try: print(5 > 3)",
+      ],
+      'intermediate': [
+        "The and keyword joins two conditions — both must be True for the result to be True.",
+        "5 > 3 is True and 2 < 4 is True — combined with and they give True.",
+        "Try: print(5 > 3 and 2 < 4)",
+      ],
+      'advanced': [
+        "% (modulo) gives the remainder after division — x % 2 == 0 means x is even.",
+        "The comparison x % 2 == 0 itself evaluates to True or False.",
+        "Try: x = 10   print(x % 2 == 0)",
+      ],
+    },
+
+    'Coins': {
+      'basic': [
+        "type() tells you the data type of any value in Python.",
+        "Wrap type(42) inside print() to display the result.",
+        "Try: print(type(42))",
+      ],
+      'intermediate': [
+        "Decimal numbers like 3.14 are called floats in Python.",
+        "type(3.14) returns <class 'float'>.",
+        "Try: print(type(3.14))",
+      ],
+      'advanced': [
+        "int() converts a string like '42' into an integer you can do arithmetic with.",
+        "Convert '42' to int then add 8 — do both inside print().",
+        "Try: print(int('42') + 8)",
+      ],
+    },
+
+    'PondBuilding': {
+      'basic': [
+        "A while loop runs as long as its condition is True — don't forget the colon.",
+        "Start i = 0 and use while i < 3. Always increment i or the loop runs forever!",
+        "Try:\ni = 0\nwhile i < 3:\n    print(i)\n    i += 1",
+      ],
+      'intermediate': [
+        "Start i at 1 and loop while i <= 3 — multiply i * 2 to print doubled values.",
+        "i += 1 at the end advances the counter each iteration.",
+        "Try:\ni = 1\nwhile i <= 3:\n    print(i * 2)\n    i += 1",
+      ],
+      'advanced': [
+        "Create s = 0 before the loop. Add i to s each iteration with s += i.",
+        "After the loop ends, print s — you are computing 1+2+3+4+5 = 15.",
+        "Try:\ns = 0\ni = 1\nwhile i <= 5:\n    s += i\n    i += 1\nprint(s)",
+      ],
+    },
   };
+
+  // Returns the correct hints for the current quest and difficulty level.
+  // isFinalTask=true → returns the master challenge-specific hints.
+  List<String> _getHints(String questId, {bool isFinalTask = false}) {
+    if (isFinalTask) {
+      return teacherHints['TreasureBox']?['final'] ?? ['Keep trying!'];
+    }
+    final questHints = teacherHints[questId];
+    if (questHints == null) return ['Keep trying!'];
+    // Match hints to current AI-recommended difficulty
+    return questHints[_currentDifficulty] ??
+        questHints['basic'] ??
+        ['Keep trying!'];
+  }
 
   @override
   void initState() {
@@ -285,9 +487,13 @@ Pyt
           .eq('id', userId)
           .single();
       final profile = Map<String, dynamic>.from(data as Map);
-      // If username is stored as email, show only the part before @
+      // If username is stored as email, strip domain
       final raw = profile['username'] as String? ?? '';
       if (raw.contains('@')) profile['username'] = raw.split('@').first;
+      // Ensure full_name falls back to username if not set
+      if ((profile['full_name'] as String? ?? '').isEmpty) {
+        profile['full_name'] = profile['username'];
+      }
       return profile;
     } catch (e) {
       return {'username': 'Hero', 'total_xp': 0, 'completed_quests': []};
@@ -316,43 +522,27 @@ Pyt
       _gameInstance?.player.onQuestCompleted();
       // ─────────────────────────────────────────────────────────────────
 
-      // 🏆 CERTIFICATE: always show when master challenge is submitted,
-      // even if Supabase already has it saved (e.g. player already at 750 XP).
-      // Must be BEFORE the Supabase duplicate-guard so it never gets skipped.
-      if (questId == 'TreasureBox_final') {
-        // Save to Supabase only if not already saved
-        final supabase2 = Supabase.instance.client;
-        final userId2 = supabase2.auth.currentUser!.id;
-        final profile2 = await _fetchStudentProfile();
-        final completed2 = List<dynamic>.from(profile2['completed_quests'] ?? []);
-        if (!completed2.contains('TreasureBox_final')) {
-          final newXp = (profile2['total_xp'] ?? 0) + points;
-          await supabase2.from('profiles').update({
-            'total_xp': newXp,
-            'completed_quests': [...completed2, 'TreasureBox_final'],
-          }).eq('id', userId2);
-        }
-        // Always show certificate regardless
-        _gameInstance?.pauseEngine();
-        if (!(_gameInstance?.overlays.isActive('Certificate') ?? false)) {
-          _gameInstance?.overlays.add('Certificate');
-        }
-        if (mounted) setState(() {});
-        return;
-      }
-
       final supabase = Supabase.instance.client;
       final userId = supabase.auth.currentUser!.id;
       final profile = await _fetchStudentProfile();
       int currentXp = profile['total_xp'] ?? 0;
-      List<dynamic> completed = profile['completed_quests'] ?? [];
+      List<dynamic> completed = List<dynamic>.from(profile['completed_quests'] ?? []);
 
+      // Only save XP + mark complete if not already saved in Supabase
+      // (guards against duplicate writes on re-attempt)
       if (!completed.contains(questId)) {
-        int newTotalXp = currentXp + points;
+        final int newTotalXp = currentXp + points;
+
+        // Persist XP and mark quest complete — works for ALL quests
+        // including TreasureBox_final (200 XP master challenge)
         await supabase.from('profiles').update({
-          'total_xp': newTotalXp,
+          'total_xp':         newTotalXp,
           'completed_quests': [...completed, questId],
         }).eq('id', userId);
+
+        // Also update in-memory list so HUD and proximity checks
+        // reflect the new state immediately without a restart
+        _gameInstance?.completedQuests.add(questId);
 
         final aiResponse = await _apiService.sendLearningMetrics(
           profileId: userId,
@@ -372,6 +562,17 @@ Pyt
           });
           _gameDataFuture = _fetchStudentProfile();
         }
+      }
+
+      // 🏆 CERTIFICATE: show after TreasureBox_final is complete.
+      // Runs AFTER the XP save block above so XP is always updated first.
+      // Also runs if already saved (re-opening cert for existing completers).
+      if (questId == 'TreasureBox_final') {
+        _gameInstance?.pauseEngine();
+        if (!(_gameInstance?.overlays.isActive('Certificate') ?? false)) {
+          _gameInstance?.overlays.add('Certificate');
+        }
+        if (mounted) setState(() {});
       }
     } catch (e) {
       debugPrint('Update Failed: $e');
@@ -414,45 +615,41 @@ Pyt
                       final g = game as CodeQuestGame;
                       final questId = g.player.activeQuest ?? '';
 
-                      // ── MASTER CHALLENGE CHECK ─────────────────────────
-                      // Uses g.completedQuests (in-memory) which is kept
-                      // in sync by _updateXP above — so this works even
-                      // when all 5 quests are completed in the same session
-                      // without restarting the app.
-                      final map2Quests = [
-                        'GoblinHouse', 'SnowToy', 'Computer',
-                        'Coins', 'PondBuilding',
-                      ];
-                      final allMap2Done = map2Quests.every(
-                            (q) => g.completedQuests.contains(q),
-                      );
-                      // Master challenge shows when:
-                      // 1. All 5 other map2 quests are done
-                      // 2. TreasureBox_final not yet done
-                      // NOTE: No normal TreasureBox task — goes straight to master.
-                      final isFinalTask = questId == 'TreasureBox' &&
+                      // ── GATE 1: STRICT RE-ATTEMPT GUARD ──
+                      // Check if this quest is the TreasureBox and if the final task is already logged.
+                      if (questId == 'TreasureBox' && g.completedQuests.contains('TreasureBox_final')) {
+                        Future.microtask(() {
+                          g.resumeAndRemoveOverlay('QuestMenu');
+                        });
+                        return const SizedBox.shrink(); // Render nothing while closing
+                      }
+
+                      // ── GATE 2: MASTER CHALLENGE READINESS ──
+                      final map2Quests = ['GoblinHouse', 'SnowToy', 'Computer', 'Coins', 'PondBuilding'];
+                      final allMap2Done = map2Quests.every((q) => g.completedQuests.contains(q));
+
+                      // A task is a "Final Task" only if all others are done AND it hasn't been finished yet
+                      final bool isFinalTask = questId == 'TreasureBox' &&
                           allMap2Done &&
                           !g.completedQuests.contains('TreasureBox_final');
-                      // If map2 quests not done yet, don't open anything
-                      if (questId == 'TreasureBox' && !isFinalTask &&
-                          g.completedQuests.contains('TreasureBox_final')) {
-                        // Already completed — close overlay silently
-                        Future.microtask(() => g.resumeAndRemoveOverlay('QuestMenu'));
-                      }
-                      // ──────────────────────────────────────────────────
 
-                      // TreasureBox always shows master challenge — no normal task
+                      // Prevent re-doing normal quests once marked as complete
+                      if (!isFinalTask && g.completedQuests.contains(questId)) {
+                        Future.microtask(() => g.resumeAndRemoveOverlay('QuestMenu'));
+                        return const SizedBox.shrink();
+                      }
+
+                      if (questId == 'TreasureBox' && !allMap2Done) {
+                        // Cannot start master challenge yet — close menu
+                        Future.microtask(() => g.resumeAndRemoveOverlay('QuestMenu'));
+                        return const SizedBox.shrink();
+                      }
+
                       Map<String, String> levelData;
                       String taskQuestId;
-                      if (questId == 'TreasureBox') {
-                        if (!allMap2Done) {
-                          // Not ready yet — close and let player finish others
-                          Future.microtask(() => g.resumeAndRemoveOverlay('QuestMenu'));
-                          return const SizedBox.shrink();
-                        }
-                        levelData = Map<String, String>.from(
-                          questData['TreasureBox']!['final']!,
-                        );
+
+                      if (isFinalTask) {
+                        levelData = Map<String, String>.from(questData['TreasureBox']!['final']!);
                         taskQuestId = 'TreasureBox_final';
                       } else {
                         levelData = questData[questId]?[_currentDifficulty] ??
@@ -465,14 +662,11 @@ Pyt
                         questId: taskQuestId,
                         task: levelData['task']!,
                         expected: levelData['expected']!,
-                        hints: isFinalTask
-                            ? (teacherHints['TreasureBox'] ?? []).skip(3).toList()
-                            : teacherHints[questId] ?? ['Keep trying!'],
-                        isFinalTask: questId == 'TreasureBox',
+                        hints: _getHints(questId, isFinalTask: isFinalTask),
+                        isFinalTask: isFinalTask,
                         onSuccess: (err, time) =>
-                            _updateXP(questId == 'TreasureBox' ? 200 : 50, taskQuestId, err, time),
-                        onClose: () =>
-                            g.resumeAndRemoveOverlay('QuestMenu'),
+                            _updateXP(isFinalTask ? 250 : 50, taskQuestId, err, time),
+                        onClose: () => g.resumeAndRemoveOverlay('QuestMenu'),
                       );
                     },
                     'LevelUp': (context, game) =>
@@ -480,7 +674,11 @@ Pyt
                     'GateLocked': (context, game) =>
                         _buildGateLockedCard(),
                     'Certificate': (context, game) =>
-                        _buildCertificateOverlay(game as CodeQuestGame),
+                        _buildCertificateOverlay(
+                          game as CodeQuestGame,
+                          snapshot.data?['full_name'] as String? ??
+                              snapshot.data?['username'] as String? ?? 'Student',
+                        ),
                   },
                 ),
               Positioned(
@@ -757,7 +955,7 @@ Pyt
 
   final GlobalKey _certKey = GlobalKey();
 
-  Widget _buildCertificateOverlay(CodeQuestGame game) {
+  Widget _buildCertificateOverlay(CodeQuestGame game, String studentName) {
     return Container(
       color: Colors.black.withOpacity(0.88),
       child: Center(
@@ -777,6 +975,7 @@ Pyt
                   RepaintBoundary(
                     key: _certKey,
                     child: _CertificateCard(
+                      studentName: studentName,
                       certHash: certHash,
                       certId: certId,
                       issuedAt: issuedAt,
@@ -1212,12 +1411,14 @@ class _CodeSandboxWidgetState extends State<CodeSandboxWidget> {
 
 // --- 4. CERTIFICATE CARD WIDGET ---
 class _CertificateCard extends StatelessWidget {
+  final String studentName;  // full name from profiles.full_name
   final String certHash;
   final String certId;
   final String issuedAt;
   final bool isVerified;
 
   const _CertificateCard({
+    this.studentName = 'Student',
     this.certHash = '...',
     this.certId = '',
     this.issuedAt = '',
@@ -1307,7 +1508,25 @@ class _CertificateCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const Text(
-            'This certifies the successful completion of',
+            'This certifies that',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white54, fontSize: 11),
+          ),
+          const SizedBox(height: 10),
+          // Student full name from profiles.full_name
+          Text(
+            studentName,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'has successfully completed',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white54, fontSize: 11),
           ),

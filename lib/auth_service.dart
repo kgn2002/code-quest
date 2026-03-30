@@ -1,60 +1,62 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
-  // Get a reference to the Supabase client
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // --- LOGIN METHOD (NEW) ---
+  // ── LOGIN ────────────────────────────────────────────────────────────────
   Future<String?> loginUser({
     required String email,
     required String password,
   }) async {
     try {
-      // Authenticate with Supabase Auth
       await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
-      return null; // Success
+      return null; // success
     } on AuthException catch (e) {
-      // Returns error messages like "Invalid login credentials"
       return e.message;
     } catch (e) {
       return "An unexpected error occurred: $e";
     }
   }
 
-// lib/auth_service.dart
+  // ── SIGN UP ──────────────────────────────────────────────────────────────
+  // Now accepts fullName and saves it to the profiles table.
+  // The certificate will display this full name instead of username.
   Future<String?> signUpUser({
+    required String fullName,   // ← NEW: student's real name for certificate
+    required String username,   // in-game hero name shown in HUD
     required String email,
     required String password,
-    required String username,
   }) async {
     try {
-      // 1. Attempt to Sign Up
+      // 1. Create auth user — store both name fields in metadata
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
-        data: {'username': username},
+        data: {
+          'username':  username,
+          'full_name': fullName,    // ← stored in auth metadata too
+        },
       );
 
       final user = response.user;
       if (user == null) return "Sign up failed. Please check your connection.";
 
-      // 2. Insert into Profiles table only if successful
-      // Use upsert() instead of insert() to prevent the "duplicate key" error
+      // 2. Insert into profiles table with full_name column
       await _supabase.from('profiles').upsert({
-        'id': user.id,
-        'username': username,
-        'total_xp': 0,
+        'id':               user.id,
+        'full_name':        fullName,   // ← NEW column
+        'username':         username,
+        'total_xp':         0,
         'completed_quests': [],
       });
 
-      return null; // Success
+      return null; // success
     } on AuthException catch (e) {
       return e.message;
     } on PostgrestException catch (e) {
-      // This catches the specific error shown in your screenshot
       if (e.code == '23505') {
         return "This account already exists. Please try logging in.";
       }
@@ -64,7 +66,7 @@ class AuthService {
     }
   }
 
-  // --- SIGN OUT METHOD (NEW) ---
+  // ── SIGN OUT ─────────────────────────────────────────────────────────────
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }

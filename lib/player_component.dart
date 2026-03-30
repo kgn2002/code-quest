@@ -10,12 +10,8 @@ class Player extends SpriteAnimationComponent
   double speed = 200.0;
   Vector2 previousPosition = Vector2.zero();
   bool _isTransitioning = false;
-
-  // Cooldown after completing a quest — prevents immediate re-trigger
-  // while player is still standing on the quest location
   double _questCooldown = 0;
 
-  // ── QUEST LOCATIONS PER MAP ──────────────────────────────────────────────
   final Map<int, Map<String, Vector2>> _allQuestLocations = {
     0: {
       'PythonHouse':   Vector2(320,  1088),
@@ -34,18 +30,14 @@ class Player extends SpriteAnimationComponent
     },
   };
 
-  // ── GATE POSITIONS ───────────────────────────────────────────────────────
   static const double _gateX             = 1152;
   static const double _gateY             = 768;
   static const double _gateGuardX        = 986;
-
   static const double _returnX           = 64;
   static const double _returnY           = 576;
   static const double _returnGuardX      = 125;
-
   static const double _gateTriggerRadius = 100;
 
-  // ── STATE ────────────────────────────────────────────────────────────────
   int currentMap = 0;
   late Map<String, Vector2> questLocations;
   String? activeQuest;
@@ -85,14 +77,12 @@ class Player extends SpriteAnimationComponent
     if (!joystick.delta.isZero()) {
       final Vector2 movement = joystick.relativeDelta * speed * dt;
 
-      // Sprite flip
       if (joystick.relativeDelta.x < 0 && scale.x > 0) {
         flipHorizontallyAroundCenter();
       } else if (joystick.relativeDelta.x > 0 && scale.x < 0) {
         flipHorizontallyAroundCenter();
       }
 
-      // Map scroll
       final mapSize = Vector2(1280, 1280);
       final double maxScrollX = -(mapSize.x - game.size.x);
       final double maxScrollY = -(mapSize.y - game.size.y);
@@ -108,7 +98,6 @@ class Player extends SpriteAnimationComponent
         position.y += movement.y;
       }
 
-      // Boundary clamp — hero always stays on screen
       final double halfW = size.x / 2;
       final double halfH = size.y / 2;
       position.x = position.x.clamp(halfW, game.size.x - halfW);
@@ -123,7 +112,6 @@ class Player extends SpriteAnimationComponent
       playing = false;
     }
 
-    // Gate check runs every frame — works even when player is wall-pressed
     if (!_isTransitioning) {
       _checkGateProximity();
     }
@@ -131,19 +119,13 @@ class Player extends SpriteAnimationComponent
     priority = position.y.toInt();
   }
 
-  // ── GATE LOCK ────────────────────────────────────────────────────────────
   static const List<String> _map1QuestIds = [
-    'PythonHouse',
-    'PythonTable',
-    'PythonLibrary',
-    'PythonGarden',
-    'PythonCave',
+    'PythonHouse', 'PythonTable', 'PythonLibrary', 'PythonGarden', 'PythonCave',
   ];
 
   bool get _allMap1QuestsDone =>
       _map1QuestIds.every((q) => game.completedQuests.contains(q));
 
-  // ── GATE CHECK ───────────────────────────────────────────────────────────
   void _checkGateProximity() {
     final Vector2 p = position - game.town.position;
 
@@ -182,42 +164,35 @@ class Player extends SpriteAnimationComponent
     });
   }
 
-  // ── QUEST COMPLETION CALLBACK ────────────────────────────────────────────
-  /// Called by GameView after quest is marked complete.
-  /// Starts a 2-second cooldown so the overlay does not re-open
-  /// while the player is still standing near the quest location.
   void onQuestCompleted() {
     _questCooldown = 2.0;
   }
 
-  // ── QUEST PROXIMITY CHECK ────────────────────────────────────────────────
   void _checkQuestProximity() {
-    // Skip entirely while cooldown is active
     if (_questCooldown > 0) return;
 
     final Vector2 p = position - game.town.position;
 
     questLocations.forEach((questName, location) {
       if (p.distanceTo(location) < 80) {
-        final bool isAlreadyCleared =
-        game.completedQuests.contains(questName);
+        // --- MASTER CHALLENGE GUARD ---
+        // If the final task is already done, do not trigger the TreasureBox proximity at all.
+        if (questName == 'TreasureBox' && game.completedQuests.contains('TreasureBox_final')) {
+          return;
+        }
 
-        // ── TREASUREBOX MASTER CHALLENGE RE-TRIGGER ──────────────────────
-        // Conditions to show master challenge:
-        // 1. Normal TreasureBox task already completed (isAlreadyCleared)
-        // 2. All 5 other map2 quests are done
-        // 3. TreasureBox_final not yet completed
+        final bool isAlreadyCleared = game.completedQuests.contains(questName);
+
         final List<String> map2Others = [
           'GoblinHouse', 'SnowToy', 'Computer', 'Coins', 'PondBuilding',
         ];
-        final bool allMap2Done =
-        map2Others.every((q) => game.completedQuests.contains(q));
+        final bool allMap2Done = map2Others.every((q) => game.completedQuests.contains(q));
+
         final bool isTreasureBoxFinalPending =
             questName == 'TreasureBox' &&
                 isAlreadyCleared &&
                 allMap2Done &&
                 !game.completedQuests.contains('TreasureBox_final');
-        // ─────────────────────────────────────────────────────────────────
 
         final bool shouldOpen =
             (!isAlreadyCleared || isTreasureBoxFinalPending) &&
@@ -227,14 +202,12 @@ class Player extends SpriteAnimationComponent
           activeQuest = questName;
           game.overlays.add('QuestMenu');
           game.pauseEngine();
-          debugPrint('📋 Quest triggered: $questName'
-              '${isTreasureBoxFinalPending ? " (MASTER CHALLENGE)" : ""}');
+          debugPrint('📋 Quest triggered: $questName');
         }
       }
     });
   }
 
-  // ── MAP SWITCH ───────────────────────────────────────────────────────────
   Future<void> _switchToMap(int newMapIndex) async {
     if (_isTransitioning) return;
     _isTransitioning = true;
@@ -260,10 +233,8 @@ class Player extends SpriteAnimationComponent
     debugPrint('✅ Now on map $currentMap');
   }
 
-  // ── COLLISION ────────────────────────────────────────────────────────────
   @override
-  void onCollision(
-      Set<Vector2> intersectionPoints, PositionComponent other) {
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if (other is PositionComponent && other.parent is TownMap) {
       final delta = position - previousPosition;
